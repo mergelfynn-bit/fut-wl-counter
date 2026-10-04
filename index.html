@@ -1,539 +1,443 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FUT Champions WL Counter</title>
 
-<title>FUT Champions W/L Counter</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      user-select: none;
+    }
 
-<style>
-* {
-    box-sizing: border-box;
-}
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      font-family: Arial, Helvetica, sans-serif;
+      background: transparent;
+    }
 
-html,
-body {
-    margin: 0;
-    padding: 0;
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-    background: transparent;
-}
+    body.control {
+      background: #111;
+    }
 
-body {
-    font-family: Arial, Helvetica, sans-serif;
-    user-select: none;
-}
+    .counter {
+      width: 276px;
+      height: 146px;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 22px;
+    }
 
-.counter {
-    width: 276px;
-    height: 146px;
+    body.control .counter {
+      background: #181818;
+      border-radius: 12px;
+    }
 
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    .side {
+      width: 90px;
+      height: 120px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
 
-    background: transparent;
-}
+    .label {
+      font-size: 16px;
+      font-weight: 800;
+      letter-spacing: 1px;
+      margin-bottom: 3px;
+    }
 
-.side {
-    width: 105px;
-    text-align: center;
-    cursor: pointer;
-}
+    .number {
+      font-size: 58px;
+      line-height: 58px;
+      font-weight: 900;
+    }
 
-.label {
-    color: white;
-    font-size: 13px;
-    font-weight: 900;
-    letter-spacing: 2px;
-    text-transform: uppercase;
+    .wins .label,
+    .wins .number {
+      color: #ffffff;
+    }
 
-    text-shadow:
-        0 2px 3px rgba(0,0,0,.9),
-        0 0 8px rgba(0,0,0,.8);
-}
+    .losses .label,
+    .losses .number {
+      color: #e9e9e9;
+    }
 
-.number {
-    color: white;
-    font-size: 70px;
-    line-height: 70px;
-    font-weight: 900;
+    .logo-container {
+      width: 72px;
+      height: 90px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
 
-    text-shadow:
-        0 3px 5px rgba(0,0,0,.95),
-        0 0 12px rgba(0,0,0,.75);
+    .champs-logo {
+      width: 68px;
+      height: 78px;
+      object-fit: contain;
+      display: block;
+      pointer-events: auto;
+      -webkit-user-drag: none;
+    }
 
-    transition: transform .08s;
-}
+    .side:hover .number {
+      transform: scale(1.05);
+    }
 
-.number:active {
-    transform: scale(.92);
-}
+    .logo-container:hover .champs-logo {
+      transform: scale(1.05);
+    }
 
-.separator {
-    color: rgba(255,255,255,.85);
-    font-size: 42px;
-    font-weight: 900;
+    .number,
+    .champs-logo {
+      transition: transform 0.12s ease;
+    }
 
-    margin: 15px 3px 0;
-
-    text-shadow:
-        0 3px 5px rgba(0,0,0,.9);
-}
-
-.logo-button {
-    width: 62px;
-    height: 62px;
-
-    margin: 0 4px;
-
-    border-radius: 50%;
-
-    cursor: pointer;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    background:
-        radial-gradient(
-            circle at 35% 30%,
-            #fff8c9 0%,
-            #e5c85a 20%,
-            #b38b24 42%,
-            #51400d 68%,
-            #171717 100%
-        );
-
-    border: 2px solid rgba(255,255,255,.7);
-
-    box-shadow:
-        0 3px 8px rgba(0,0,0,.8),
-        inset 0 0 8px rgba(255,255,255,.35);
-
-    transition: transform .08s;
-}
-
-.logo-button:active {
-    transform: scale(.88);
-}
-
-.shield {
-    width: 39px;
-    height: 45px;
-
-    clip-path: polygon(
-        50% 0%,
-        92% 14%,
-        84% 68%,
-        50% 100%,
-        16% 68%,
-        8% 14%
-    );
-
-    background:
-        linear-gradient(
-            135deg,
-            #ffffff 0%,
-            #eeeeee 25%,
-            #242424 26%,
-            #111111 70%,
-            #d7ad38 71%,
-            #fff0a0 100%
-        );
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    box-shadow:
-        0 2px 4px rgba(0,0,0,.9);
-}
-
-.shield-text {
-    color: white;
-
-    font-size: 7px;
-    line-height: 8px;
-
-    font-weight: 1000;
-
-    text-align: center;
-
-    text-shadow:
-        0 1px 2px #000;
-
-    transform: rotate(-4deg);
-}
-
-
-/* =========================
-   CONTROL MODE
-   ========================= */
-
-.control {
-    background: #101010;
-
-    min-height: 100vh;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.control .counter {
-    background: #181818;
-
-    width: 100%;
-    height: auto;
-
-    padding: 20px;
-
-    border-radius: 12px;
-
-    box-shadow:
-        0 8px 30px rgba(0,0,0,.5);
-}
-
-.control .number {
-    cursor: pointer;
-}
-
-.control .label {
-    color: #ddd;
-}
-
-.control-info {
-    position: absolute;
-
-    bottom: 10px;
-    left: 0;
-    right: 0;
-
-    text-align: center;
-
-    color: #777;
-
-    font-size: 11px;
-}
-</style>
+    body:not(.control) .side,
+    body:not(.control) .logo-container {
+      cursor: default;
+    }
+  </style>
 </head>
 
 <body>
 
-<div class="counter">
+  <div class="counter">
 
-    <div class="side" id="winsArea">
-
-        <div class="label">
-            Wins
-        </div>
-
-        <div class="number" id="wins">
-            0
-        </div>
-
+    <!-- WINS -->
+    <div class="side wins" id="winsButton">
+      <div class="label">WINS</div>
+      <div class="number" id="wins">0</div>
     </div>
 
-
-    <div class="logo-button" id="reset">
-
-        <div class="shield">
-
-            <div class="shield-text">
-                FUT<br>
-                CHAMPIONS
-            </div>
-
-        </div>
-
+    <!-- ECHTES FUT CHAMPIONS LOGO -->
+    <div class="logo-container" id="resetButton">
+      <img
+        class="champs-logo"
+        src="/fut-wl-counter/assets/img/champions-only.png"
+        alt="FUT Champions"
+        draggable="false"
+      >
     </div>
 
-
-    <div class="separator">
-        :
+    <!-- LOSSES -->
+    <div class="side losses" id="lossesButton">
+      <div class="label">LOSSES</div>
+      <div class="number" id="losses">0</div>
     </div>
 
+  </div>
 
-    <div class="side" id="lossesArea">
-
-        <div class="label">
-            Losses
-        </div>
-
-        <div class="number" id="losses">
-            0
-        </div>
-
-    </div>
-
-</div>
-
-
-<script>
-
-(function () {
-
-    /*
-     * ==========================================
-     * FUT WL COUNTER
-     * ==========================================
-     *
-     * Die Browser-Quelle und das OBS-Dock
-     * kommunizieren über BroadcastChannel.
-     */
-
-    const channel = new BroadcastChannel("fut-wl-counter");
-
+  <script>
+    const STATE_KEY = "fut-wl-counter-state";
 
     let wins = 0;
     let losses = 0;
 
+    const winsElement = document.getElementById("wins");
+    const lossesElement = document.getElementById("losses");
 
-    const winsElement =
-        document.getElementById("wins");
-
-    const lossesElement =
-        document.getElementById("losses");
-
-
-    /*
-     * Prüfen ob wir im Control-Dock sind
-     */
-
-    const isControl =
-        new URLSearchParams(window.location.search)
-        .get("control") === "1";
-
+    const winsButton = document.getElementById("winsButton");
+    const lossesButton = document.getElementById("lossesButton");
+    const resetButton = document.getElementById("resetButton");
 
     /*
-     * Control-Dock optisch markieren
-     */
+      --------------------------------------------------
+      CONTROL MODE
+      ?control=1
+      --------------------------------------------------
+    */
+
+    const params = new URLSearchParams(window.location.search);
+    const isControl = params.get("control") === "1";
 
     if (isControl) {
-
-        document.body.classList.add("control");
-
-        const info =
-            document.createElement("div");
-
-        info.className = "control-info";
-
-        info.textContent =
-            "Linksklick = +1 • Rechtsklick = −1 • Logo = Reset";
-
-        document.body.appendChild(info);
+      document.body.classList.add("control");
     }
 
-
     /*
-     * Anzeige aktualisieren
-     */
+      --------------------------------------------------
+      BROADCAST CHANNEL
+      --------------------------------------------------
+    */
 
-    function updateDisplay() {
+    let channel = null;
 
-        winsElement.textContent = wins;
-
-        lossesElement.textContent = losses;
+    if ("BroadcastChannel" in window) {
+      channel = new BroadcastChannel("fut-wl-counter");
     }
 
+    /*
+      --------------------------------------------------
+      RENDER
+      --------------------------------------------------
+    */
+
+    function render() {
+      winsElement.textContent = wins;
+      lossesElement.textContent = losses;
+    }
 
     /*
-     * Änderung an alle anderen Fenster senden
-     */
+      --------------------------------------------------
+      SAVE STATE
+      --------------------------------------------------
+    */
 
-    function sendState() {
+    function saveState() {
+      const state = {
+        wins: wins,
+        losses: losses,
+        timestamp: Date.now()
+      };
 
+      try {
+        localStorage.setItem(STATE_KEY, JSON.stringify(state));
+      } catch (error) {
+        console.log("localStorage error:", error);
+      }
+
+      if (channel) {
         channel.postMessage({
-
-            type: "state",
-
-            wins: wins,
-
-            losses: losses
-
+          type: "state",
+          state: state
         });
+      }
     }
 
-
     /*
-     * Neue Daten von anderem Fenster empfangen
-     */
+      --------------------------------------------------
+      LOAD STATE
+      --------------------------------------------------
+    */
 
-    channel.addEventListener(
-        "message",
-        function (event) {
+    function loadState() {
+      try {
+        const saved = localStorage.getItem(STATE_KEY);
 
-            if (!event.data) {
-                return;
-            }
+        if (saved) {
+          const state = JSON.parse(saved);
 
-            if (event.data.type === "state") {
-
-                wins =
-                    Math.max(
-                        0,
-                        Number(event.data.wins) || 0
-                    );
-
-                losses =
-                    Math.max(
-                        0,
-                        Number(event.data.losses) || 0
-                    );
-
-                updateDisplay();
-            }
-
+          if (
+            typeof state.wins === "number" &&
+            typeof state.losses === "number"
+          ) {
+            wins = state.wins;
+            losses = state.losses;
+            render();
+          }
         }
-    );
-
-
-    /*
-     * Wins
-     *
-     * Linksklick = +1
-     * Rechtsklick = -1
-     */
-
-    document
-        .getElementById("winsArea")
-        .addEventListener(
-            "mousedown",
-            function (event) {
-
-                event.preventDefault();
-
-                if (event.button === 0) {
-
-                    wins++;
-
-                } else if (event.button === 2) {
-
-                    wins =
-                        Math.max(
-                            0,
-                            wins - 1
-                        );
-                }
-
-                updateDisplay();
-
-                sendState();
-            }
-        );
-
+      } catch (error) {
+        console.log("load error:", error);
+      }
+    }
 
     /*
-     * Losses
-     *
-     * Linksklick = +1
-     * Rechtsklick = -1
-     */
+      --------------------------------------------------
+      APPLY STATE
+      --------------------------------------------------
+    */
 
-    document
-        .getElementById("lossesArea")
-        .addEventListener(
-            "mousedown",
-            function (event) {
+    function applyState(state) {
+      if (!state) return;
 
-                event.preventDefault();
+      if (typeof state.wins === "number") {
+        wins = Math.max(0, state.wins);
+      }
 
-                if (event.button === 0) {
+      if (typeof state.losses === "number") {
+        losses = Math.max(0, state.losses);
+      }
 
-                    losses++;
-
-                } else if (event.button === 2) {
-
-                    losses =
-                        Math.max(
-                            0,
-                            losses - 1
-                        );
-                }
-
-                updateDisplay();
-
-                sendState();
-            }
-        );
-
+      render();
+    }
 
     /*
-     * Logo = Reset
-     */
+      --------------------------------------------------
+      CHANNEL MESSAGES
+      --------------------------------------------------
+    */
 
-    document
-        .getElementById("reset")
-        .addEventListener(
-            "click",
-            function () {
+    if (channel) {
+      channel.onmessage = function(event) {
 
-                wins = 0;
+        if (!event.data) return;
 
-                losses = 0;
-
-                updateDisplay();
-
-                sendState();
-            }
-        );
-
-
-    /*
-     * Rechtsklick-Menü deaktivieren
-     */
-
-    document.addEventListener(
-        "contextmenu",
-        function (event) {
-
-            event.preventDefault();
-
+        if (event.data.type === "state") {
+          applyState(event.data.state);
         }
-    );
 
+        if (event.data.type === "requestState") {
+          channel.postMessage({
+            type: "state",
+            state: {
+              wins: wins,
+              losses: losses,
+              timestamp: Date.now()
+            }
+          });
+        }
+      };
+    }
 
     /*
-     * Startanzeige
-     */
+      --------------------------------------------------
+      LOCAL STORAGE SYNC
+      --------------------------------------------------
+    */
 
-    updateDisplay();
+    window.addEventListener("storage", function(event) {
 
+      if (event.key !== STATE_KEY) return;
+      if (!event.newValue) return;
 
-    /*
-     * Beim Öffnen eines neuen Control-Docks
-     * aktuellen Stand anfordern.
-     */
-
-    channel.postMessage({
-
-        type: "requestState"
-
+      try {
+        const state = JSON.parse(event.newValue);
+        applyState(state);
+      } catch (error) {
+        console.log("storage sync error:", error);
+      }
     });
 
+    /*
+      --------------------------------------------------
+      REQUEST CURRENT STATE
+      --------------------------------------------------
+    */
 
-    channel.addEventListener(
-        "message",
-        function (event) {
+    function requestState() {
 
-            if (
-                event.data &&
-                event.data.type === "requestState"
-            ) {
+      if (channel) {
+        channel.postMessage({
+          type: "requestState"
+        });
+      }
 
-                sendState();
+      loadState();
+    }
 
-            }
+    /*
+      --------------------------------------------------
+      CHANGE COUNTER
+      --------------------------------------------------
+    */
 
-        }
-    );
+    function changeWins(amount) {
 
-})();
+      if (!isControl) return;
 
-</script>
+      wins += amount;
+
+      if (wins < 0) {
+        wins = 0;
+      }
+
+      render();
+      saveState();
+    }
+
+    function changeLosses(amount) {
+
+      if (!isControl) return;
+
+      losses += amount;
+
+      if (losses < 0) {
+        losses = 0;
+      }
+
+      render();
+      saveState();
+    }
+
+    /*
+      --------------------------------------------------
+      RESET
+      --------------------------------------------------
+    */
+
+    function resetCounter() {
+
+      if (!isControl) return;
+
+      wins = 0;
+      losses = 0;
+
+      render();
+      saveState();
+    }
+
+    /*
+      --------------------------------------------------
+      MOUSE CONTROLS
+      --------------------------------------------------
+    */
+
+    winsButton.addEventListener("click", function(event) {
+      event.preventDefault();
+      changeWins(1);
+    });
+
+    winsButton.addEventListener("contextmenu", function(event) {
+      event.preventDefault();
+      changeWins(-1);
+    });
+
+    lossesButton.addEventListener("click", function(event) {
+      event.preventDefault();
+      changeLosses(1);
+    });
+
+    lossesButton.addEventListener("contextmenu", function(event) {
+      event.preventDefault();
+      changeLosses(-1);
+    });
+
+    resetButton.addEventListener("click", function(event) {
+      event.preventDefault();
+      resetCounter();
+    });
+
+    resetButton.addEventListener("contextmenu", function(event) {
+      event.preventDefault();
+    });
+
+    /*
+      --------------------------------------------------
+      DISABLE RIGHT CLICK
+      --------------------------------------------------
+    */
+
+    document.addEventListener("contextmenu", function(event) {
+      event.preventDefault();
+    });
+
+    /*
+      --------------------------------------------------
+      START
+      --------------------------------------------------
+    */
+
+    loadState();
+    render();
+
+    setTimeout(function() {
+      requestState();
+    }, 300);
+
+  </script>
 
 </body>
 </html>
