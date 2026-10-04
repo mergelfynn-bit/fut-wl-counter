@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>FUT Champions WL Counter</title>
+<title>FUT WL Counter</title>
 
 <style>
 * {
@@ -18,8 +18,18 @@ body {
     width: 100%;
     height: 100%;
     overflow: hidden;
-    background: transparent;
     font-family: Arial, Helvetica, sans-serif;
+}
+
+/* NORMALE OBS-QUELLE */
+body:not(.control) {
+    background: transparent;
+}
+
+/* OBS CONTROL DOCK */
+body.control {
+    background: #202020;
+    color: white;
 }
 
 .counter {
@@ -30,12 +40,25 @@ body {
     align-items: center;
     justify-content: space-between;
 
-    padding: 0 28px;
+    padding: 0 20px;
 }
 
+/* DOCK */
+body.control .counter {
+    width: 100%;
+    height: 100%;
+
+    min-width: 260px;
+    min-height: 140px;
+
+    background: #202020;
+}
+
+/* ZAHLEN-BEREICH */
+
 .side {
-    width: 65px;
-    height: 110px;
+    width: 80px;
+    height: 120px;
 
     display: flex;
     align-items: center;
@@ -45,17 +68,23 @@ body {
 }
 
 .number {
-    font-size: 64px;
-    line-height: 1;
+    font-size: 58px;
     font-weight: 900;
     color: white;
 
-    text-shadow:
-        0 2px 3px rgba(0,0,0,0.7);
+    text-shadow: 0 2px 4px black;
+
+    transition: transform .1s;
 }
 
+body.control .side:hover .number {
+    transform: scale(1.1);
+}
+
+/* LOGO */
+
 .logo-container {
-    width: 80px;
+    width: 75px;
     height: 110px;
 
     display: flex;
@@ -66,43 +95,58 @@ body {
 }
 
 .champs-logo {
-    width: 72px;
-    height: 90px;
+    width: 65px;
+    height: 85px;
 
     object-fit: contain;
 
     display: block;
-
-    -webkit-user-drag: none;
 }
 
-.number:hover,
-.champs-logo:hover {
-    transform: scale(1.05);
+body.control .logo-container:hover .champs-logo {
+    transform: scale(1.08);
 }
 
-.number,
-.champs-logo {
-    transition: transform 0.1s ease;
+/* DOCK BESCHRIFTUNG */
+
+.control-label {
+    display: none;
 }
 
-/* Kein hässlicher Broken-Image-Platzhalter */
-.champs-logo {
-    border: none;
-    outline: none;
+body.control .control-label {
+    display: block;
+
+    position: absolute;
+
+    top: 5px;
+    left: 0;
+    right: 0;
+
+    text-align: center;
+
+    font-size: 11px;
+    font-weight: bold;
+
+    color: #aaa;
 }
+
 </style>
 </head>
 
 <body>
 
+<div class="control-label">
+    FUT CHAMPIONS COUNTER
+</div>
+
 <div class="counter">
 
     <!-- WINS -->
+
     <div
         class="side"
         id="winsButton"
-        title="Linksklick +1 / Rechtsklick -1"
+        title="Linksklick = +1 | Rechtsklick = -1"
     >
         <div
             class="number"
@@ -111,26 +155,30 @@ body {
     </div>
 
 
-    <!-- FUT CHAMPIONS -->
+    <!-- LOGO -->
+
     <div
         class="logo-container"
         id="resetButton"
-        title="Klick = Reset"
+        title="Klick = Zurücksetzen"
     >
+
         <img
             class="champs-logo"
             src="assets/img/champions-only.png"
             alt="FUT Champions"
             draggable="false"
         >
+
     </div>
 
 
     <!-- LOSSES -->
+
     <div
         class="side"
         id="lossesButton"
-        title="Linksklick +1 / Rechtsklick -1"
+        title="Linksklick = +1 | Rechtsklick = -1"
     >
         <div
             class="number"
@@ -143,14 +191,33 @@ body {
 
 <script>
 
-/* =========================================
-   ELEMENTE
-========================================= */
+/* ========================================
+   CONTROL MODE
+======================================== */
 
-const winsElement =
+const params =
+    new URLSearchParams(
+        window.location.search
+    );
+
+const control =
+    params.get("control") === "1";
+
+if (control) {
+
+    document.body.classList.add("control");
+
+}
+
+
+/* ========================================
+   ELEMENTE
+======================================== */
+
+const wins =
     document.getElementById("wins");
 
-const lossesElement =
+const losses =
     document.getElementById("losses");
 
 const winsButton =
@@ -163,253 +230,105 @@ const resetButton =
     document.getElementById("resetButton");
 
 
-/* =========================================
-   WERTE
-========================================= */
+/* ========================================
+   STORAGE
+======================================== */
 
-let wins = 0;
-let losses = 0;
+const STORAGE =
+    "fut-wl-counter";
 
+let state = {
 
-/* =========================================
-   LOCAL STORAGE
-   Beide OBS-Fenster benutzen exakt
-   denselben Speicher.
-========================================= */
+    wins: 0,
+    losses: 0
 
-const WINS_KEY = "wins";
-const LOSSES_KEY = "loses";
+};
 
 
-/* =========================================
-   ANZEIGE
-========================================= */
+/* ========================================
+   LADEN
+======================================== */
+
+function load() {
+
+    try {
+
+        const saved =
+            localStorage.getItem(STORAGE);
+
+        if (saved) {
+
+            const data =
+                JSON.parse(saved);
+
+            state.wins =
+                Number(data.wins) || 0;
+
+            state.losses =
+                Number(data.losses) || 0;
+
+        }
+
+    } catch (e) {
+
+        console.log(e);
+
+    }
+
+    render();
+
+}
+
+
+/* ========================================
+   SPEICHERN
+======================================== */
+
+function save() {
+
+    localStorage.setItem(
+        STORAGE,
+        JSON.stringify({
+            wins: state.wins,
+            losses: state.losses
+        })
+    );
+
+}
+
+
+/* ========================================
+   RENDER
+======================================== */
 
 function render() {
 
-    winsElement.textContent = wins;
-    lossesElement.textContent = losses;
+    wins.textContent =
+        state.wins;
+
+    losses.textContent =
+        state.losses;
 
 }
 
 
-/* =========================================
-   LADEN
-========================================= */
-
-function loadState() {
-
-    const savedWins =
-        localStorage.getItem(WINS_KEY);
-
-    const savedLosses =
-        localStorage.getItem(LOSSES_KEY);
-
-
-    if (savedWins !== null) {
-
-        wins =
-            parseInt(savedWins, 10) || 0;
-
-    }
-
-
-    if (savedLosses !== null) {
-
-        losses =
-            parseInt(savedLosses, 10) || 0;
-
-    }
-
-
-    render();
-
-}
-
-
-/* =========================================
+/* ========================================
    WINS +1
-========================================= */
-
-function addWin() {
-
-    if (wins >= 20)
-        return;
-
-    wins++;
-
-    localStorage.setItem(
-        WINS_KEY,
-        wins
-    );
-
-    render();
-
-}
-
-
-/* =========================================
-   WINS -1
-========================================= */
-
-function removeWin(event) {
-
-    event.preventDefault();
-
-    if (wins <= 0)
-        return;
-
-    wins--;
-
-    localStorage.setItem(
-        WINS_KEY,
-        wins
-    );
-
-    render();
-
-}
-
-
-/* =========================================
-   LOSSES +1
-========================================= */
-
-function addLoss() {
-
-    if (losses >= 20)
-        return;
-
-    losses++;
-
-    localStorage.setItem(
-        LOSSES_KEY,
-        losses
-    );
-
-    render();
-
-}
-
-
-/* =========================================
-   LOSSES -1
-========================================= */
-
-function removeLoss(event) {
-
-    event.preventDefault();
-
-    if (losses <= 0)
-        return;
-
-    losses--;
-
-    localStorage.setItem(
-        LOSSES_KEY,
-        losses
-    );
-
-    render();
-
-}
-
-
-/* =========================================
-   RESET
-========================================= */
-
-function resetCounter() {
-
-    wins = 0;
-    losses = 0;
-
-    localStorage.setItem(
-        WINS_KEY,
-        0
-    );
-
-    localStorage.setItem(
-        LOSSES_KEY,
-        0
-    );
-
-    render();
-
-}
-
-
-/* =========================================
-   WINS EVENTS
-========================================= */
+======================================== */
 
 winsButton.addEventListener(
     "click",
-    addWin
-);
+    function() {
 
-winsButton.addEventListener(
-    "contextmenu",
-    removeWin
-);
+        if (!control)
+            return;
 
+        if (state.wins < 20) {
 
-/* =========================================
-   LOSSES EVENTS
-========================================= */
+            state.wins++;
 
-lossesButton.addEventListener(
-    "click",
-    addLoss
-);
-
-lossesButton.addEventListener(
-    "contextmenu",
-    removeLoss
-);
-
-
-/* =========================================
-   LOGO = RESET
-========================================= */
-
-resetButton.addEventListener(
-    "click",
-    resetCounter
-);
-
-
-/* =========================================
-   RECHTSKLICK MENÜ DEAKTIVIEREN
-========================================= */
-
-document.addEventListener(
-    "contextmenu",
-    function(event) {
-
-        event.preventDefault();
-
-    }
-);
-
-
-/* =========================================
-   WICHTIG:
-   Wenn das andere OBS-Fenster den
-   localStorage ändert, aktualisieren
-   wir automatisch.
-========================================= */
-
-window.addEventListener(
-    "storage",
-    function(event) {
-
-        if (
-            event.key === WINS_KEY ||
-            event.key === LOSSES_KEY
-        ) {
-
-            loadState();
+            save();
+            render();
 
         }
 
@@ -417,11 +336,146 @@ window.addEventListener(
 );
 
 
-/* =========================================
-   START
-========================================= */
+/* ========================================
+   WINS -1
+======================================== */
 
-loadState();
+winsButton.addEventListener(
+    "contextmenu",
+    function(event) {
+
+        event.preventDefault();
+
+        if (!control)
+            return;
+
+        if (state.wins > 0) {
+
+            state.wins--;
+
+            save();
+            render();
+
+        }
+
+    }
+);
+
+
+/* ========================================
+   LOSSES +1
+======================================== */
+
+lossesButton.addEventListener(
+    "click",
+    function() {
+
+        if (!control)
+            return;
+
+        if (state.losses < 20) {
+
+            state.losses++;
+
+            save();
+            render();
+
+        }
+
+    }
+);
+
+
+/* ========================================
+   LOSSES -1
+======================================== */
+
+lossesButton.addEventListener(
+    "contextmenu",
+    function(event) {
+
+        event.preventDefault();
+
+        if (!control)
+            return;
+
+        if (state.losses > 0) {
+
+            state.losses--;
+
+            save();
+            render();
+
+        }
+
+    }
+);
+
+
+/* ========================================
+   RESET
+======================================== */
+
+resetButton.addEventListener(
+    "click",
+    function() {
+
+        if (!control)
+            return;
+
+        state.wins = 0;
+        state.losses = 0;
+
+        save();
+        render();
+
+    }
+);
+
+
+/* ========================================
+   STORAGE SYNC
+======================================== */
+
+window.addEventListener(
+    "storage",
+    function(event) {
+
+        if (
+            event.key === STORAGE
+        ) {
+
+            load();
+
+        }
+
+    }
+);
+
+
+/* ========================================
+   ZUSÄTZLICHE SYNCHRONISATION
+======================================== */
+
+setInterval(
+    function() {
+
+        if (!control) {
+
+            load();
+
+        }
+
+    },
+    200
+);
+
+
+/* ========================================
+   START
+======================================== */
+
+load();
 
 </script>
 
