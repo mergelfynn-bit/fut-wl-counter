@@ -1,13 +1,265 @@
+```html
 <!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>FUT WL Score</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
-  </body>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FUT Champions W/L Counter</title>
+
+<style>
+    * {
+        box-sizing: border-box;
+    }
+
+    html, body {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        background: transparent;
+    }
+
+    body {
+        font-family: Arial, Helvetica, sans-serif;
+        user-select: none;
+    }
+
+    .counter {
+        width: 276px;
+        height: 146px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: transparent;
+    }
+
+    .side {
+        width: 105px;
+        text-align: center;
+        cursor: pointer;
+    }
+
+    .label {
+        color: #ffffff;
+        font-size: 13px;
+        font-weight: 900;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        text-shadow:
+            0 2px 3px rgba(0,0,0,.9),
+            0 0 8px rgba(0,0,0,.8);
+    }
+
+    .number {
+        color: #ffffff;
+        font-size: 70px;
+        line-height: 70px;
+        font-weight: 900;
+        text-shadow:
+            0 3px 5px rgba(0,0,0,.95),
+            0 0 12px rgba(0,0,0,.75);
+    }
+
+    .number:active {
+        transform: scale(.92);
+    }
+
+    .separator {
+        color: rgba(255,255,255,.8);
+        font-size: 42px;
+        font-weight: 900;
+        margin: 15px 3px 0;
+        text-shadow: 0 3px 5px rgba(0,0,0,.9);
+    }
+
+    .logo-button {
+        width: 62px;
+        height: 62px;
+        margin: 0 4px;
+        border-radius: 50%;
+        cursor: pointer;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        background:
+            radial-gradient(
+                circle at 35% 30%,
+                #fff8c9 0%,
+                #e5c85a 20%,
+                #b38b24 42%,
+                #51400d 68%,
+                #171717 100%
+            );
+
+        border: 2px solid rgba(255,255,255,.7);
+
+        box-shadow:
+            0 3px 8px rgba(0,0,0,.8),
+            inset 0 0 8px rgba(255,255,255,.35);
+    }
+
+    .logo-button:active {
+        transform: scale(.88);
+    }
+
+    /*
+       FUT Champions style emblem.
+       The emblem is intentionally CSS-based so the overlay
+       has no dependency on an external image URL.
+    */
+    .shield {
+        width: 39px;
+        height: 45px;
+
+        clip-path: polygon(
+            50% 0%,
+            92% 14%,
+            84% 68%,
+            50% 100%,
+            16% 68%,
+            8% 14%
+        );
+
+        background:
+            linear-gradient(
+                135deg,
+                #ffffff 0%,
+                #eeeeee 25%,
+                #242424 26%,
+                #111111 70%,
+                #d7ad38 71%,
+                #fff0a0 100%
+            );
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        box-shadow: 0 2px 4px rgba(0,0,0,.9);
+    }
+
+    .shield-text {
+        color: #ffffff;
+        font-size: 7px;
+        line-height: 8px;
+        font-weight: 1000;
+        text-align: center;
+        text-shadow: 0 1px 2px #000;
+        transform: rotate(-4deg);
+    }
+
+    .tooltip {
+        position: absolute;
+        opacity: 0;
+        pointer-events: none;
+    }
+</style>
+</head>
+
+<body>
+
+<div class="counter">
+
+    <div class="side" id="winsArea">
+        <div class="label">Wins</div>
+        <div class="number" id="wins">0</div>
+    </div>
+
+    <div class="logo-button" id="reset" title="Reset">
+        <div class="shield">
+            <div class="shield-text">
+                FUT<br>
+                CHAMPIONS
+            </div>
+        </div>
+    </div>
+
+    <div class="separator">:</div>
+
+    <div class="side" id="lossesArea">
+        <div class="label">Losses</div>
+        <div class="number" id="losses">0</div>
+    </div>
+
+</div>
+
+<script>
+(function () {
+
+    let wins = 0;
+    let losses = 0;
+
+    const winsElement = document.getElementById("wins");
+    const lossesElement = document.getElementById("losses");
+
+    function updateDisplay() {
+        winsElement.textContent = wins;
+        lossesElement.textContent = losses;
+    }
+
+    /*
+     * Linksklick:
+     * +1
+     *
+     * Rechtsklick:
+     * -1
+     */
+
+    document.getElementById("winsArea").addEventListener("mousedown", function (event) {
+        event.preventDefault();
+
+        if (event.button === 0) {
+            wins++;
+        }
+
+        if (event.button === 2) {
+            wins = Math.max(0, wins - 1);
+        }
+
+        updateDisplay();
+    });
+
+    document.getElementById("lossesArea").addEventListener("mousedown", function (event) {
+        event.preventDefault();
+
+        if (event.button === 0) {
+            losses++;
+        }
+
+        if (event.button === 2) {
+            losses = Math.max(0, losses - 1);
+        }
+
+        updateDisplay();
+    });
+
+    /*
+     * FUT Champions Logo:
+     * Counter zurücksetzen
+     */
+
+    document.getElementById("reset").addEventListener("click", function () {
+        wins = 0;
+        losses = 0;
+        updateDisplay();
+    });
+
+    /*
+     * Rechtsklick-Menü deaktivieren
+     */
+
+    document.addEventListener("contextmenu", function (event) {
+        event.preventDefault();
+    });
+
+    updateDisplay();
+
+})();
+</script>
+
+</body>
 </html>
+```
