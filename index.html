@@ -22,9 +22,9 @@ body {
     font-family: Arial, Helvetica, sans-serif;
 }
 
-/* =========================================
-   NORMALER OBS OVERLAY
-========================================= */
+/* =========================
+   OVERLAY
+   ========================= */
 
 .counter {
     width: 276px;
@@ -56,6 +56,8 @@ body {
 
     text-shadow:
         0 2px 3px rgba(0,0,0,0.7);
+
+    transition: transform 0.1s ease;
 }
 
 .logo-container {
@@ -69,18 +71,25 @@ body {
     cursor: pointer;
 }
 
+/*
+   DAS ECHTE FUT CHAMPIONS LOGO
+   aus dem Originalprojekt.
+*/
 .champs-logo {
     width: 72px;
     height: 90px;
 
-    object-fit: contain;
-
     display: block;
 
-    -webkit-user-drag: none;
+    background-image: url("https://raw.githubusercontent.com/inca3/fut-wl-counter/main/public/assets/img/champions-only.png");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: contain;
 
     border: none;
     outline: none;
+
+    transition: transform 0.1s ease;
 }
 
 .number:hover,
@@ -88,38 +97,41 @@ body {
     transform: scale(1.05);
 }
 
-.number,
-.champs-logo {
-    transition: transform 0.1s ease;
-}
 
-
-/* =========================================
+/* =========================
    DOCK
-   Nur wenn ?dock=1 verwendet wird
-========================================= */
+   ========================= */
 
 body.dock {
-    background: #181818;
+    background: #181818 !important;
+    color: white;
 }
 
 body.dock .counter {
-    width: 100%;
-    height: 100%;
+    width: 100vw;
+    height: 100vh;
 
-    min-width: 360px;
+    min-width: 300px;
     min-height: 170px;
 
-    padding: 20px;
+    padding: 35px 20px 20px 20px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
 
     gap: 10px;
 
-    justify-content: center;
+    background: #181818;
 }
 
 body.dock .side {
+    position: relative;
+
     width: 100px;
     height: 120px;
+
+    flex-shrink: 0;
 
     border: 1px solid #444;
     border-radius: 10px;
@@ -138,13 +150,19 @@ body.dock .number {
 }
 
 body.dock .logo-container {
+    position: relative;
+
     width: 110px;
     height: 120px;
+
+    flex-shrink: 0;
 
     border: 1px solid #444;
     border-radius: 10px;
 
     background: #202020;
+
+    cursor: pointer;
 }
 
 body.dock .champs-logo {
@@ -155,7 +173,7 @@ body.dock .champs-logo {
 body.dock::before {
     content: "FUT CHAMPIONS";
 
-    position: absolute;
+    position: fixed;
 
     top: 8px;
     left: 50%;
@@ -168,6 +186,8 @@ body.dock::before {
     font-weight: bold;
 
     letter-spacing: 2px;
+
+    pointer-events: none;
 }
 
 body.dock .side::after {
@@ -197,6 +217,10 @@ body.dock .logo-container::after {
     position: absolute;
 
     bottom: 8px;
+    left: 0;
+    right: 0;
+
+    text-align: center;
 
     color: #888;
 
@@ -204,17 +228,9 @@ body.dock .logo-container::after {
     font-weight: bold;
 
     letter-spacing: 1px;
+
+    pointer-events: none;
 }
-
-body.dock .side,
-body.dock .logo-container {
-    position: relative;
-}
-
-
-/* =========================================
-   DOCK HINWEIS
-========================================= */
 
 .dock-help {
     display: none;
@@ -223,7 +239,7 @@ body.dock .logo-container {
 body.dock .dock-help {
     display: block;
 
-    position: absolute;
+    position: fixed;
 
     bottom: 2px;
     left: 50%;
@@ -235,12 +251,14 @@ body.dock .dock-help {
     font-size: 9px;
 
     white-space: nowrap;
+
+    pointer-events: none;
 }
 
 
-/* =========================================
-   KLEINE DOCKS
-========================================= */
+/* =========================
+   MOBILE / KLEINES DOCK
+   ========================= */
 
 @media (max-width: 500px) {
 
@@ -260,6 +278,10 @@ body.dock .dock-help {
         font-size: 44px;
     }
 
+    body.dock .champs-logo {
+        width: 65px;
+        height: 85px;
+    }
 }
 </style>
 </head>
@@ -268,45 +290,33 @@ body.dock .dock-help {
 
 <div class="counter">
 
-    <!-- WINS -->
     <div
         class="side"
         id="winsButton"
         title="Linksklick +1 / Rechtsklick -1"
     >
-        <div
-            class="number"
-            id="wins"
-        >0</div>
+        <div class="number" id="wins">0</div>
     </div>
 
 
-    <!-- FUT CHAMPIONS -->
     <div
         class="logo-container"
         id="resetButton"
         title="Klick = Reset"
     >
-        <img
-    class="champs-logo"
-    src="./public/assets/img/champions-only.png"
-    alt="FUT Champions"
-    draggable="false"
->
-        >
+        <div
+            class="champs-logo"
+            aria-label="FUT Champions"
+        ></div>
     </div>
 
 
-    <!-- LOSSES -->
     <div
         class="side"
         id="lossesButton"
         title="Linksklick +1 / Rechtsklick -1"
     >
-        <div
-            class="number"
-            id="losses"
-        >0</div>
+        <div class="number" id="losses">0</div>
     </div>
 
 </div>
@@ -318,24 +328,22 @@ body.dock .dock-help {
 
 <script>
 
-/* =========================================
+/* =========================
    DOCK ERKENNEN
-========================================= */
+   ========================= */
 
-const urlParams =
-    new URLSearchParams(window.location.search);
+const urlParams = new URLSearchParams(window.location.search);
 
-const isDock =
-    urlParams.get("dock") === "1";
+const isDock = urlParams.get("dock") === "1";
 
 if (isDock) {
     document.body.classList.add("dock");
 }
 
 
-/* =========================================
+/* =========================
    ELEMENTE
-========================================= */
+   ========================= */
 
 const winsElement =
     document.getElementById("wins");
@@ -353,9 +361,9 @@ const resetButton =
     document.getElementById("resetButton");
 
 
-/* =========================================
-   STORAGE
-========================================= */
+/* =========================
+   SPEICHER
+   ========================= */
 
 const WINS_KEY = "wins";
 const LOSSES_KEY = "loses";
@@ -364,9 +372,9 @@ const CHANNEL_NAME =
     "fut-wl-counter-sync";
 
 
-/* =========================================
+/* =========================
    BROADCAST CHANNEL
-========================================= */
+   ========================= */
 
 let channel = null;
 
@@ -382,17 +390,17 @@ try {
 }
 
 
-/* =========================================
+/* =========================
    WERTE
-========================================= */
+   ========================= */
 
 let wins = 0;
 let losses = 0;
 
 
-/* =========================================
+/* =========================
    RENDER
-========================================= */
+   ========================= */
 
 function render() {
 
@@ -402,9 +410,9 @@ function render() {
 }
 
 
-/* =========================================
-   SPEICHERN + SYNCHRONISIEREN
-========================================= */
+/* =========================
+   SPEICHERN
+   ========================= */
 
 function saveState() {
 
@@ -412,11 +420,6 @@ function saveState() {
         wins: wins,
         losses: losses
     };
-
-
-    /*
-     * localStorage
-     */
 
     localStorage.setItem(
         WINS_KEY,
@@ -429,32 +432,25 @@ function saveState() {
     );
 
 
-    /*
-     * BroadcastChannel
-     */
-
     if (channel) {
 
         try {
 
             channel.postMessage(state);
 
-        } catch (error) {
-
-            /* nichts */
-
-        }
+        } catch (error) {}
 
     }
 
 
     render();
+
 }
 
 
-/* =========================================
+/* =========================
    LADEN
-========================================= */
+   ========================= */
 
 function loadState() {
 
@@ -471,7 +467,13 @@ function loadState() {
             parseInt(savedWins, 10);
 
         if (!isNaN(value)) {
-            wins = Math.max(0, Math.min(20, value));
+
+            wins =
+                Math.max(
+                    0,
+                    Math.min(20, value)
+                );
+
         }
 
     }
@@ -483,83 +485,82 @@ function loadState() {
             parseInt(savedLosses, 10);
 
         if (!isNaN(value)) {
-            losses = Math.max(0, Math.min(20, value));
+
+            losses =
+                Math.max(
+                    0,
+                    Math.min(20, value)
+                );
+
         }
 
     }
 
 
     render();
+
 }
 
 
-/* =========================================
-   WIN +1
-========================================= */
+/* =========================
+   WINS
+   ========================= */
 
 function addWin() {
 
-    if (wins >= 20)
-        return;
+    if (wins >= 20) return;
 
     wins++;
 
     saveState();
+
 }
 
-
-/* =========================================
-   WIN -1
-========================================= */
 
 function removeWin(event) {
 
     event.preventDefault();
 
-    if (wins <= 0)
-        return;
+    if (wins <= 0) return;
 
     wins--;
 
     saveState();
+
 }
 
 
-/* =========================================
-   LOSS +1
-========================================= */
+/* =========================
+   LOSSES
+   ========================= */
 
 function addLoss() {
 
-    if (losses >= 20)
-        return;
+    if (losses >= 20) return;
 
     losses++;
 
     saveState();
+
 }
 
-
-/* =========================================
-   LOSS -1
-========================================= */
 
 function removeLoss(event) {
 
     event.preventDefault();
 
-    if (losses <= 0)
-        return;
+    if (losses <= 0) return;
 
     losses--;
 
     saveState();
+
 }
 
 
-/* =========================================
+/* =========================
    RESET
-========================================= */
+   ========================= */
 
 function resetCounter() {
 
@@ -567,12 +568,13 @@ function resetCounter() {
     losses = 0;
 
     saveState();
+
 }
 
 
-/* =========================================
-   WINS EVENTS
-========================================= */
+/* =========================
+   EVENTS
+   ========================= */
 
 winsButton.addEventListener(
     "click",
@@ -585,10 +587,6 @@ winsButton.addEventListener(
 );
 
 
-/* =========================================
-   LOSSES EVENTS
-========================================= */
-
 lossesButton.addEventListener(
     "click",
     addLoss
@@ -600,19 +598,15 @@ lossesButton.addEventListener(
 );
 
 
-/* =========================================
-   LOGO RESET
-========================================= */
-
 resetButton.addEventListener(
     "click",
     resetCounter
 );
 
 
-/* =========================================
-   RECHTSKLICK-MENÜ AUS
-========================================= */
+/* =========================
+   RECHTSKLICK BLOCKIEREN
+   ========================= */
 
 document.addEventListener(
     "contextmenu",
@@ -624,9 +618,9 @@ document.addEventListener(
 );
 
 
-/* =========================================
+/* =========================
    BROADCAST EMPFANGEN
-========================================= */
+   ========================= */
 
 if (channel) {
 
@@ -636,9 +630,7 @@ if (channel) {
 
             const data = event.data;
 
-            if (!data)
-                return;
-
+            if (!data) return;
 
             if (
                 typeof data.wins !== "number" ||
@@ -669,9 +661,9 @@ if (channel) {
 }
 
 
-/* =========================================
-   STORAGE-EVENT
-========================================= */
+/* =========================
+   LOCAL STORAGE
+   ========================= */
 
 window.addEventListener(
     "storage",
@@ -690,9 +682,9 @@ window.addEventListener(
 );
 
 
-/* =========================================
-   REGELMÄSSIGER FALLBACK
-========================================= */
+/* =========================
+   POLLING
+   ========================= */
 
 let lastWins =
     localStorage.getItem(WINS_KEY);
@@ -716,11 +708,8 @@ setInterval(
             currentLosses !== lastLosses
         ) {
 
-            lastWins =
-                currentWins;
-
-            lastLosses =
-                currentLosses;
+            lastWins = currentWins;
+            lastLosses = currentLosses;
 
             loadState();
 
@@ -731,9 +720,9 @@ setInterval(
 );
 
 
-/* =========================================
+/* =========================
    START
-========================================= */
+   ========================= */
 
 loadState();
 
