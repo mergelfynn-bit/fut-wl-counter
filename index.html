@@ -3,608 +3,425 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>FUT Champions WL Counter</title>
 
 <style>
-
 * {
-  box-sizing: border-box;
-  user-select: none;
+    box-sizing: border-box;
+    user-select: none;
 }
 
 html,
 body {
-  margin: 0;
-  padding: 0;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-  background: transparent;
-  font-family: Arial, Helvetica, sans-serif;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: transparent;
+    font-family: Arial, Helvetica, sans-serif;
 }
-
-/* =========================
-   COUNTER
-========================= */
 
 .counter {
-  width: 276px;
-  height: 146px;
+    width: 276px;
+    height: 146px;
 
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
 
-  padding: 0 20px;
+    padding: 0 28px;
 }
-
-/* =========================
-   CONTROL DOCK
-========================= */
-
-body.control {
-  background: #151515;
-}
-
-body.control .counter {
-  background: #151515;
-  border-radius: 12px;
-}
-
-/* =========================
-   SIDES
-========================= */
 
 .side {
-  width: 85px;
-  height: 120px;
+    width: 65px;
+    height: 110px;
 
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 
-  cursor: pointer;
-}
-
-.label {
-  font-size: 14px;
-  font-weight: 800;
-  letter-spacing: 1px;
-  margin-bottom: 3px;
+    cursor: pointer;
 }
 
 .number {
-  font-size: 58px;
-  line-height: 58px;
-  font-weight: 900;
+    font-size: 64px;
+    line-height: 1;
+    font-weight: 900;
+    color: white;
 
-  transition: transform 0.1s ease;
+    text-shadow:
+        0 2px 3px rgba(0,0,0,0.7);
 }
-
-.wins .label,
-.wins .number {
-  color: white;
-}
-
-.losses .label,
-.losses .number {
-  color: white;
-}
-
-/* =========================
-   LOGO
-========================= */
 
 .logo-container {
-  width: 70px;
-  height: 100px;
+    width: 80px;
+    height: 110px;
 
-  display: flex;
-  align-items: center;
-  justify-content: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 
-  cursor: pointer;
+    cursor: pointer;
 }
 
 .champs-logo {
-  width: 58px;
-  height: 78px;
+    width: 72px;
+    height: 90px;
 
-  object-fit: contain;
+    object-fit: contain;
 
-  display: block;
+    display: block;
 
-  -webkit-user-drag: none;
-
-  transition: transform 0.1s ease;
+    -webkit-user-drag: none;
 }
 
-/* Hover nur im Dock */
-
-body.control .side:hover .number {
-  transform: scale(1.08);
+.number:hover,
+.champs-logo:hover {
+    transform: scale(1.05);
 }
 
-body.control .logo-container:hover .champs-logo {
-  transform: scale(1.08);
+.number,
+.champs-logo {
+    transition: transform 0.1s ease;
 }
 
-/* Auf der normalen OBS-Quelle keine Maus-Effekte */
-
-body:not(.control) .side,
-body:not(.control) .logo-container {
-  cursor: default;
+/* Kein hässlicher Broken-Image-Platzhalter */
+.champs-logo {
+    border: none;
+    outline: none;
 }
-
 </style>
 </head>
-
 
 <body>
 
 <div class="counter">
 
-  <!-- WINS -->
-
-  <div
-    class="side wins"
-    id="winsButton"
-  >
-    <div class="label">WINS</div>
+    <!-- WINS -->
     <div
-      class="number"
-      id="wins"
-    >0</div>
-  </div>
-
-
-  <!-- FUT CHAMPIONS LOGO -->
-
-  <div
-    class="logo-container"
-    id="resetButton"
-  >
-
-    <img
-      class="champs-logo"
-      src="https://raw.githubusercontent.com/inca3/fut-wl-counter/main/public/assets/img/champions-only.png"
-      alt="FUT Champions"
-      draggable="false"
+        class="side"
+        id="winsButton"
+        title="Linksklick +1 / Rechtsklick -1"
     >
+        <div
+            class="number"
+            id="wins"
+        >0</div>
+    </div>
 
-  </div>
 
-
-  <!-- LOSSES -->
-
-  <div
-    class="side losses"
-    id="lossesButton"
-  >
-    <div class="label">LOSSES</div>
+    <!-- FUT CHAMPIONS -->
     <div
-      class="number"
-      id="losses"
-    >0</div>
-  </div>
+        class="logo-container"
+        id="resetButton"
+        title="Klick = Reset"
+    >
+        <img
+            class="champs-logo"
+            src="assets/img/champions-only.png"
+            alt="FUT Champions"
+            draggable="false"
+        >
+    </div>
+
+
+    <!-- LOSSES -->
+    <div
+        class="side"
+        id="lossesButton"
+        title="Linksklick +1 / Rechtsklick -1"
+    >
+        <div
+            class="number"
+            id="losses"
+        >0</div>
+    </div>
 
 </div>
 
 
 <script>
 
-/* ==================================================
-   EINSTELLUNGEN
-================================================== */
-
-const STORAGE_KEY = "fut-wl-counter-final";
-
-const CONTROL_MODE =
-  new URLSearchParams(window.location.search).get("control") === "1";
-
-
-/* ==================================================
-   CONTROL-KLASSE
-================================================== */
-
-if (CONTROL_MODE) {
-  document.body.classList.add("control");
-}
-
-
-/* ==================================================
+/* =========================================
    ELEMENTE
-================================================== */
+========================================= */
 
 const winsElement =
-  document.getElementById("wins");
+    document.getElementById("wins");
 
 const lossesElement =
-  document.getElementById("losses");
+    document.getElementById("losses");
 
 const winsButton =
-  document.getElementById("winsButton");
+    document.getElementById("winsButton");
 
 const lossesButton =
-  document.getElementById("lossesButton");
+    document.getElementById("lossesButton");
 
 const resetButton =
-  document.getElementById("resetButton");
+    document.getElementById("resetButton");
 
 
-/* ==================================================
+/* =========================================
    WERTE
-================================================== */
+========================================= */
 
 let wins = 0;
 let losses = 0;
 
 
-/* ==================================================
-   RENDER
-================================================== */
+/* =========================================
+   LOCAL STORAGE
+   Beide OBS-Fenster benutzen exakt
+   denselben Speicher.
+========================================= */
+
+const WINS_KEY = "wins";
+const LOSSES_KEY = "loses";
+
+
+/* =========================================
+   ANZEIGE
+========================================= */
 
 function render() {
 
-  winsElement.textContent = wins;
-  lossesElement.textContent = losses;
+    winsElement.textContent = wins;
+    lossesElement.textContent = losses;
 
 }
 
 
-/* ==================================================
-   STATE SPEICHERN
-================================================== */
-
-function saveState() {
-
-  const state = {
-
-    wins: wins,
-    losses: losses,
-
-    time: Date.now()
-
-  };
-
-
-  try {
-
-    localStorage.setItem(
-      STORAGE_KEY,
-      JSON.stringify(state)
-    );
-
-  } catch (error) {
-
-    console.log(
-      "LocalStorage Fehler:",
-      error
-    );
-
-  }
-
-}
-
-
-/* ==================================================
-   STATE LADEN
-================================================== */
+/* =========================================
+   LADEN
+========================================= */
 
 function loadState() {
 
-  try {
+    const savedWins =
+        localStorage.getItem(WINS_KEY);
 
-    const saved =
-      localStorage.getItem(STORAGE_KEY);
+    const savedLosses =
+        localStorage.getItem(LOSSES_KEY);
 
 
-    if (!saved) {
+    if (savedWins !== null) {
 
-      render();
-
-      return;
+        wins =
+            parseInt(savedWins, 10) || 0;
 
     }
 
 
-    const state =
-      JSON.parse(saved);
+    if (savedLosses !== null) {
 
-
-    if (
-      typeof state.wins === "number" &&
-      typeof state.losses === "number"
-    ) {
-
-      wins =
-        Math.max(
-          0,
-          state.wins
-        );
-
-      losses =
-        Math.max(
-          0,
-          state.losses
-        );
+        losses =
+            parseInt(savedLosses, 10) || 0;
 
     }
 
 
     render();
 
-  } catch (error) {
+}
 
-    console.log(
-      "Load Fehler:",
-      error
+
+/* =========================================
+   WINS +1
+========================================= */
+
+function addWin() {
+
+    if (wins >= 20)
+        return;
+
+    wins++;
+
+    localStorage.setItem(
+        WINS_KEY,
+        wins
     );
 
-  }
+    render();
 
 }
 
 
-/* ==================================================
-   STATE ÄNDERN
-================================================== */
+/* =========================================
+   WINS -1
+========================================= */
 
-function setWins(value) {
+function removeWin(event) {
 
-  wins =
-    Math.max(
-      0,
-      Math.min(
-        20,
-        value
-      )
+    event.preventDefault();
+
+    if (wins <= 0)
+        return;
+
+    wins--;
+
+    localStorage.setItem(
+        WINS_KEY,
+        wins
     );
 
-  render();
-
-  saveState();
+    render();
 
 }
 
 
-function setLosses(value) {
+/* =========================================
+   LOSSES +1
+========================================= */
 
-  losses =
-    Math.max(
-      0,
-      Math.min(
-        20,
-        value
-      )
+function addLoss() {
+
+    if (losses >= 20)
+        return;
+
+    losses++;
+
+    localStorage.setItem(
+        LOSSES_KEY,
+        losses
     );
 
-  render();
-
-  saveState();
+    render();
 
 }
 
 
-/* ==================================================
-   WINS
-================================================== */
+/* =========================================
+   LOSSES -1
+========================================= */
+
+function removeLoss(event) {
+
+    event.preventDefault();
+
+    if (losses <= 0)
+        return;
+
+    losses--;
+
+    localStorage.setItem(
+        LOSSES_KEY,
+        losses
+    );
+
+    render();
+
+}
+
+
+/* =========================================
+   RESET
+========================================= */
+
+function resetCounter() {
+
+    wins = 0;
+    losses = 0;
+
+    localStorage.setItem(
+        WINS_KEY,
+        0
+    );
+
+    localStorage.setItem(
+        LOSSES_KEY,
+        0
+    );
+
+    render();
+
+}
+
+
+/* =========================================
+   WINS EVENTS
+========================================= */
 
 winsButton.addEventListener(
-  "click",
-  function(event) {
-
-    event.preventDefault();
-
-    if (!CONTROL_MODE)
-      return;
-
-    setWins(wins + 1);
-
-  }
+    "click",
+    addWin
 );
-
 
 winsButton.addEventListener(
-  "contextmenu",
-  function(event) {
-
-    event.preventDefault();
-
-    if (!CONTROL_MODE)
-      return;
-
-    setWins(wins - 1);
-
-  }
+    "contextmenu",
+    removeWin
 );
 
 
-/* ==================================================
-   LOSSES
-================================================== */
+/* =========================================
+   LOSSES EVENTS
+========================================= */
 
 lossesButton.addEventListener(
-  "click",
-  function(event) {
-
-    event.preventDefault();
-
-    if (!CONTROL_MODE)
-      return;
-
-    setLosses(losses + 1);
-
-  }
+    "click",
+    addLoss
 );
-
 
 lossesButton.addEventListener(
-  "contextmenu",
-  function(event) {
-
-    event.preventDefault();
-
-    if (!CONTROL_MODE)
-      return;
-
-    setLosses(losses - 1);
-
-  }
+    "contextmenu",
+    removeLoss
 );
 
 
-/* ==================================================
-   RESET DURCH LOGO
-================================================== */
+/* =========================================
+   LOGO = RESET
+========================================= */
 
 resetButton.addEventListener(
-  "click",
-  function(event) {
-
-    event.preventDefault();
-
-    if (!CONTROL_MODE)
-      return;
-
-    setWins(0);
-    setLosses(0);
-
-  }
+    "click",
+    resetCounter
 );
 
 
-/* ==================================================
-   RECHTSKLICK VERHINDERN
-================================================== */
+/* =========================================
+   RECHTSKLICK MENÜ DEAKTIVIEREN
+========================================= */
 
 document.addEventListener(
-  "contextmenu",
-  function(event) {
+    "contextmenu",
+    function(event) {
 
-    event.preventDefault();
+        event.preventDefault();
 
-  }
+    }
 );
 
 
-/* ==================================================
-   STORAGE EVENT
-   ANDERE OBS-SEITE ERHÄLT ÄNDERUNG
-================================================== */
+/* =========================================
+   WICHTIG:
+   Wenn das andere OBS-Fenster den
+   localStorage ändert, aktualisieren
+   wir automatisch.
+========================================= */
 
 window.addEventListener(
-  "storage",
-  function(event) {
+    "storage",
+    function(event) {
 
-    if (
-      event.key !== STORAGE_KEY
-    ) {
+        if (
+            event.key === WINS_KEY ||
+            event.key === LOSSES_KEY
+        ) {
 
-      return;
+            loadState();
+
+        }
 
     }
-
-
-    loadState();
-
-  }
 );
 
 
-/* ==================================================
-   POLLING
-   ZUSÄTZLICHE OBS-SICHERHEIT
-================================================== */
-
-let lastStorageValue = null;
-
-
-function checkStorage() {
-
-  try {
-
-    const current =
-      localStorage.getItem(
-        STORAGE_KEY
-      );
-
-
-    if (
-      current &&
-      current !== lastStorageValue
-    ) {
-
-      lastStorageValue =
-        current;
-
-
-      const state =
-        JSON.parse(current);
-
-
-      if (
-        typeof state.wins === "number" &&
-        typeof state.losses === "number"
-      ) {
-
-        wins =
-          Math.max(
-            0,
-            state.wins
-          );
-
-        losses =
-          Math.max(
-            0,
-            state.losses
-          );
-
-        render();
-
-      }
-
-    }
-
-  } catch (error) {
-
-    console.log(
-      "Sync Fehler:",
-      error
-    );
-
-  }
-
-}
-
-
-/* ==================================================
+/* =========================================
    START
-================================================== */
+========================================= */
 
 loadState();
-
-
-try {
-
-  lastStorageValue =
-    localStorage.getItem(
-      STORAGE_KEY
-    );
-
-} catch (error) {}
-
-
-/* ==================================================
-   ALLE 100ms NACH ÄNDERUNGEN SCHAUEN
-================================================== */
-
-setInterval(
-  checkStorage,
-  100
-);
 
 </script>
 
