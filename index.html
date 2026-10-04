@@ -1,161 +1,223 @@
-```html
 <!DOCTYPE html>
 <html lang="de">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>FUT Champions W/L Counter</title>
 
 <style>
-    * {
-        box-sizing: border-box;
-    }
+* {
+    box-sizing: border-box;
+}
 
-    html, body {
-        margin: 0;
-        padding: 0;
-        width: 100%;
-        height: 100%;
-        overflow: hidden;
-        background: transparent;
-    }
+html,
+body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: transparent;
+}
 
-    body {
-        font-family: Arial, Helvetica, sans-serif;
-        user-select: none;
-    }
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    user-select: none;
+}
 
-    .counter {
-        width: 276px;
-        height: 146px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: transparent;
-    }
+.counter {
+    width: 276px;
+    height: 146px;
 
-    .side {
-        width: 105px;
-        text-align: center;
-        cursor: pointer;
-    }
+    display: flex;
+    align-items: center;
+    justify-content: center;
 
-    .label {
-        color: #ffffff;
-        font-size: 13px;
-        font-weight: 900;
-        letter-spacing: 2px;
-        text-transform: uppercase;
-        text-shadow:
-            0 2px 3px rgba(0,0,0,.9),
-            0 0 8px rgba(0,0,0,.8);
-    }
+    background: transparent;
+}
 
-    .number {
-        color: #ffffff;
-        font-size: 70px;
-        line-height: 70px;
-        font-weight: 900;
-        text-shadow:
-            0 3px 5px rgba(0,0,0,.95),
-            0 0 12px rgba(0,0,0,.75);
-    }
+.side {
+    width: 105px;
+    text-align: center;
+    cursor: pointer;
+}
 
-    .number:active {
-        transform: scale(.92);
-    }
+.label {
+    color: white;
+    font-size: 13px;
+    font-weight: 900;
+    letter-spacing: 2px;
+    text-transform: uppercase;
 
-    .separator {
-        color: rgba(255,255,255,.8);
-        font-size: 42px;
-        font-weight: 900;
-        margin: 15px 3px 0;
-        text-shadow: 0 3px 5px rgba(0,0,0,.9);
-    }
+    text-shadow:
+        0 2px 3px rgba(0,0,0,.9),
+        0 0 8px rgba(0,0,0,.8);
+}
 
-    .logo-button {
-        width: 62px;
-        height: 62px;
-        margin: 0 4px;
-        border-radius: 50%;
-        cursor: pointer;
+.number {
+    color: white;
+    font-size: 70px;
+    line-height: 70px;
+    font-weight: 900;
 
-        display: flex;
-        align-items: center;
-        justify-content: center;
+    text-shadow:
+        0 3px 5px rgba(0,0,0,.95),
+        0 0 12px rgba(0,0,0,.75);
 
-        background:
-            radial-gradient(
-                circle at 35% 30%,
-                #fff8c9 0%,
-                #e5c85a 20%,
-                #b38b24 42%,
-                #51400d 68%,
-                #171717 100%
-            );
+    transition: transform .08s;
+}
 
-        border: 2px solid rgba(255,255,255,.7);
+.number:active {
+    transform: scale(.92);
+}
 
-        box-shadow:
-            0 3px 8px rgba(0,0,0,.8),
-            inset 0 0 8px rgba(255,255,255,.35);
-    }
+.separator {
+    color: rgba(255,255,255,.85);
+    font-size: 42px;
+    font-weight: 900;
 
-    .logo-button:active {
-        transform: scale(.88);
-    }
+    margin: 15px 3px 0;
 
-    /*
-       FUT Champions style emblem.
-       The emblem is intentionally CSS-based so the overlay
-       has no dependency on an external image URL.
-    */
-    .shield {
-        width: 39px;
-        height: 45px;
+    text-shadow:
+        0 3px 5px rgba(0,0,0,.9);
+}
 
-        clip-path: polygon(
-            50% 0%,
-            92% 14%,
-            84% 68%,
-            50% 100%,
-            16% 68%,
-            8% 14%
+.logo-button {
+    width: 62px;
+    height: 62px;
+
+    margin: 0 4px;
+
+    border-radius: 50%;
+
+    cursor: pointer;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background:
+        radial-gradient(
+            circle at 35% 30%,
+            #fff8c9 0%,
+            #e5c85a 20%,
+            #b38b24 42%,
+            #51400d 68%,
+            #171717 100%
         );
 
-        background:
-            linear-gradient(
-                135deg,
-                #ffffff 0%,
-                #eeeeee 25%,
-                #242424 26%,
-                #111111 70%,
-                #d7ad38 71%,
-                #fff0a0 100%
-            );
+    border: 2px solid rgba(255,255,255,.7);
 
-        display: flex;
-        align-items: center;
-        justify-content: center;
+    box-shadow:
+        0 3px 8px rgba(0,0,0,.8),
+        inset 0 0 8px rgba(255,255,255,.35);
 
-        box-shadow: 0 2px 4px rgba(0,0,0,.9);
-    }
+    transition: transform .08s;
+}
 
-    .shield-text {
-        color: #ffffff;
-        font-size: 7px;
-        line-height: 8px;
-        font-weight: 1000;
-        text-align: center;
-        text-shadow: 0 1px 2px #000;
-        transform: rotate(-4deg);
-    }
+.logo-button:active {
+    transform: scale(.88);
+}
 
-    .tooltip {
-        position: absolute;
-        opacity: 0;
-        pointer-events: none;
-    }
+.shield {
+    width: 39px;
+    height: 45px;
+
+    clip-path: polygon(
+        50% 0%,
+        92% 14%,
+        84% 68%,
+        50% 100%,
+        16% 68%,
+        8% 14%
+    );
+
+    background:
+        linear-gradient(
+            135deg,
+            #ffffff 0%,
+            #eeeeee 25%,
+            #242424 26%,
+            #111111 70%,
+            #d7ad38 71%,
+            #fff0a0 100%
+        );
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    box-shadow:
+        0 2px 4px rgba(0,0,0,.9);
+}
+
+.shield-text {
+    color: white;
+
+    font-size: 7px;
+    line-height: 8px;
+
+    font-weight: 1000;
+
+    text-align: center;
+
+    text-shadow:
+        0 1px 2px #000;
+
+    transform: rotate(-4deg);
+}
+
+
+/* =========================
+   CONTROL MODE
+   ========================= */
+
+.control {
+    background: #101010;
+
+    min-height: 100vh;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.control .counter {
+    background: #181818;
+
+    width: 100%;
+    height: auto;
+
+    padding: 20px;
+
+    border-radius: 12px;
+
+    box-shadow:
+        0 8px 30px rgba(0,0,0,.5);
+}
+
+.control .number {
+    cursor: pointer;
+}
+
+.control .label {
+    color: #ddd;
+}
+
+.control-info {
+    position: absolute;
+
+    bottom: 10px;
+    left: 0;
+    right: 0;
+
+    text-align: center;
+
+    color: #777;
+
+    font-size: 11px;
+}
 </style>
 </head>
 
@@ -164,102 +226,314 @@
 <div class="counter">
 
     <div class="side" id="winsArea">
-        <div class="label">Wins</div>
-        <div class="number" id="wins">0</div>
+
+        <div class="label">
+            Wins
+        </div>
+
+        <div class="number" id="wins">
+            0
+        </div>
+
     </div>
 
-    <div class="logo-button" id="reset" title="Reset">
+
+    <div class="logo-button" id="reset">
+
         <div class="shield">
+
             <div class="shield-text">
                 FUT<br>
                 CHAMPIONS
             </div>
+
         </div>
+
     </div>
 
-    <div class="separator">:</div>
+
+    <div class="separator">
+        :
+    </div>
+
 
     <div class="side" id="lossesArea">
-        <div class="label">Losses</div>
-        <div class="number" id="losses">0</div>
+
+        <div class="label">
+            Losses
+        </div>
+
+        <div class="number" id="losses">
+            0
+        </div>
+
     </div>
 
 </div>
 
+
 <script>
+
 (function () {
+
+    /*
+     * ==========================================
+     * FUT WL COUNTER
+     * ==========================================
+     *
+     * Die Browser-Quelle und das OBS-Dock
+     * kommunizieren über BroadcastChannel.
+     */
+
+    const channel = new BroadcastChannel("fut-wl-counter");
+
 
     let wins = 0;
     let losses = 0;
 
-    const winsElement = document.getElementById("wins");
-    const lossesElement = document.getElementById("losses");
+
+    const winsElement =
+        document.getElementById("wins");
+
+    const lossesElement =
+        document.getElementById("losses");
+
+
+    /*
+     * Prüfen ob wir im Control-Dock sind
+     */
+
+    const isControl =
+        new URLSearchParams(window.location.search)
+        .get("control") === "1";
+
+
+    /*
+     * Control-Dock optisch markieren
+     */
+
+    if (isControl) {
+
+        document.body.classList.add("control");
+
+        const info =
+            document.createElement("div");
+
+        info.className = "control-info";
+
+        info.textContent =
+            "Linksklick = +1 • Rechtsklick = −1 • Logo = Reset";
+
+        document.body.appendChild(info);
+    }
+
+
+    /*
+     * Anzeige aktualisieren
+     */
 
     function updateDisplay() {
+
         winsElement.textContent = wins;
+
         lossesElement.textContent = losses;
     }
 
+
     /*
-     * Linksklick:
-     * +1
+     * Änderung an alle anderen Fenster senden
+     */
+
+    function sendState() {
+
+        channel.postMessage({
+
+            type: "state",
+
+            wins: wins,
+
+            losses: losses
+
+        });
+    }
+
+
+    /*
+     * Neue Daten von anderem Fenster empfangen
+     */
+
+    channel.addEventListener(
+        "message",
+        function (event) {
+
+            if (!event.data) {
+                return;
+            }
+
+            if (event.data.type === "state") {
+
+                wins =
+                    Math.max(
+                        0,
+                        Number(event.data.wins) || 0
+                    );
+
+                losses =
+                    Math.max(
+                        0,
+                        Number(event.data.losses) || 0
+                    );
+
+                updateDisplay();
+            }
+
+        }
+    );
+
+
+    /*
+     * Wins
      *
-     * Rechtsklick:
-     * -1
+     * Linksklick = +1
+     * Rechtsklick = -1
      */
 
-    document.getElementById("winsArea").addEventListener("mousedown", function (event) {
-        event.preventDefault();
+    document
+        .getElementById("winsArea")
+        .addEventListener(
+            "mousedown",
+            function (event) {
 
-        if (event.button === 0) {
-            wins++;
-        }
+                event.preventDefault();
 
-        if (event.button === 2) {
-            wins = Math.max(0, wins - 1);
-        }
+                if (event.button === 0) {
 
-        updateDisplay();
-    });
+                    wins++;
 
-    document.getElementById("lossesArea").addEventListener("mousedown", function (event) {
-        event.preventDefault();
+                } else if (event.button === 2) {
 
-        if (event.button === 0) {
-            losses++;
-        }
+                    wins =
+                        Math.max(
+                            0,
+                            wins - 1
+                        );
+                }
 
-        if (event.button === 2) {
-            losses = Math.max(0, losses - 1);
-        }
+                updateDisplay();
 
-        updateDisplay();
-    });
+                sendState();
+            }
+        );
+
 
     /*
-     * FUT Champions Logo:
-     * Counter zurücksetzen
+     * Losses
+     *
+     * Linksklick = +1
+     * Rechtsklick = -1
      */
 
-    document.getElementById("reset").addEventListener("click", function () {
-        wins = 0;
-        losses = 0;
-        updateDisplay();
-    });
+    document
+        .getElementById("lossesArea")
+        .addEventListener(
+            "mousedown",
+            function (event) {
+
+                event.preventDefault();
+
+                if (event.button === 0) {
+
+                    losses++;
+
+                } else if (event.button === 2) {
+
+                    losses =
+                        Math.max(
+                            0,
+                            losses - 1
+                        );
+                }
+
+                updateDisplay();
+
+                sendState();
+            }
+        );
+
+
+    /*
+     * Logo = Reset
+     */
+
+    document
+        .getElementById("reset")
+        .addEventListener(
+            "click",
+            function () {
+
+                wins = 0;
+
+                losses = 0;
+
+                updateDisplay();
+
+                sendState();
+            }
+        );
+
 
     /*
      * Rechtsklick-Menü deaktivieren
      */
 
-    document.addEventListener("contextmenu", function (event) {
-        event.preventDefault();
-    });
+    document.addEventListener(
+        "contextmenu",
+        function (event) {
+
+            event.preventDefault();
+
+        }
+    );
+
+
+    /*
+     * Startanzeige
+     */
 
     updateDisplay();
 
+
+    /*
+     * Beim Öffnen eines neuen Control-Docks
+     * aktuellen Stand anfordern.
+     */
+
+    channel.postMessage({
+
+        type: "requestState"
+
+    });
+
+
+    channel.addEventListener(
+        "message",
+        function (event) {
+
+            if (
+                event.data &&
+                event.data.type === "requestState"
+            ) {
+
+                sendState();
+
+            }
+
+        }
+    );
+
 })();
+
 </script>
 
 </body>
 </html>
-```
