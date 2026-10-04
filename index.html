@@ -1,443 +1,612 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>FUT Champions WL Counter</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <style>
-    * {
-      box-sizing: border-box;
-      user-select: none;
-    }
+<title>FUT Champions WL Counter</title>
 
-    html,
-    body {
-      margin: 0;
-      padding: 0;
-      width: 100%;
-      height: 100%;
-      overflow: hidden;
-      font-family: Arial, Helvetica, sans-serif;
-      background: transparent;
-    }
+<style>
 
-    body.control {
-      background: #111;
-    }
+* {
+  box-sizing: border-box;
+  user-select: none;
+}
 
-    .counter {
-      width: 276px;
-      height: 146px;
-      position: relative;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 22px;
-    }
+html,
+body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: transparent;
+  font-family: Arial, Helvetica, sans-serif;
+}
 
-    body.control .counter {
-      background: #181818;
-      border-radius: 12px;
-    }
+/* =========================
+   COUNTER
+========================= */
 
-    .side {
-      width: 90px;
-      height: 120px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-    }
+.counter {
+  width: 276px;
+  height: 146px;
 
-    .label {
-      font-size: 16px;
-      font-weight: 800;
-      letter-spacing: 1px;
-      margin-bottom: 3px;
-    }
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 
-    .number {
-      font-size: 58px;
-      line-height: 58px;
-      font-weight: 900;
-    }
+  padding: 0 20px;
+}
 
-    .wins .label,
-    .wins .number {
-      color: #ffffff;
-    }
+/* =========================
+   CONTROL DOCK
+========================= */
 
-    .losses .label,
-    .losses .number {
-      color: #e9e9e9;
-    }
+body.control {
+  background: #151515;
+}
 
-    .logo-container {
-      width: 72px;
-      height: 90px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-    }
+body.control .counter {
+  background: #151515;
+  border-radius: 12px;
+}
 
-    .champs-logo {
-      width: 68px;
-      height: 78px;
-      object-fit: contain;
-      display: block;
-      pointer-events: auto;
-      -webkit-user-drag: none;
-    }
+/* =========================
+   SIDES
+========================= */
 
-    .side:hover .number {
-      transform: scale(1.05);
-    }
+.side {
+  width: 85px;
+  height: 120px;
 
-    .logo-container:hover .champs-logo {
-      transform: scale(1.05);
-    }
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 
-    .number,
-    .champs-logo {
-      transition: transform 0.12s ease;
-    }
+  cursor: pointer;
+}
 
-    body:not(.control) .side,
-    body:not(.control) .logo-container {
-      cursor: default;
-    }
-  </style>
+.label {
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  margin-bottom: 3px;
+}
+
+.number {
+  font-size: 58px;
+  line-height: 58px;
+  font-weight: 900;
+
+  transition: transform 0.1s ease;
+}
+
+.wins .label,
+.wins .number {
+  color: white;
+}
+
+.losses .label,
+.losses .number {
+  color: white;
+}
+
+/* =========================
+   LOGO
+========================= */
+
+.logo-container {
+  width: 70px;
+  height: 100px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  cursor: pointer;
+}
+
+.champs-logo {
+  width: 58px;
+  height: 78px;
+
+  object-fit: contain;
+
+  display: block;
+
+  -webkit-user-drag: none;
+
+  transition: transform 0.1s ease;
+}
+
+/* Hover nur im Dock */
+
+body.control .side:hover .number {
+  transform: scale(1.08);
+}
+
+body.control .logo-container:hover .champs-logo {
+  transform: scale(1.08);
+}
+
+/* Auf der normalen OBS-Quelle keine Maus-Effekte */
+
+body:not(.control) .side,
+body:not(.control) .logo-container {
+  cursor: default;
+}
+
+</style>
 </head>
+
 
 <body>
 
-  <div class="counter">
+<div class="counter">
 
-    <!-- WINS -->
-    <div class="side wins" id="winsButton">
-      <div class="label">WINS</div>
-      <div class="number" id="wins">0</div>
-    </div>
+  <!-- WINS -->
 
-    <!-- ECHTES FUT CHAMPIONS LOGO -->
-    <div class="logo-container" id="resetButton">
-      <img
-        class="champs-logo"
-        src="/fut-wl-counter/assets/img/champions-only.png"
-        alt="FUT Champions"
-        draggable="false"
-      >
-    </div>
+  <div
+    class="side wins"
+    id="winsButton"
+  >
+    <div class="label">WINS</div>
+    <div
+      class="number"
+      id="wins"
+    >0</div>
+  </div>
 
-    <!-- LOSSES -->
-    <div class="side losses" id="lossesButton">
-      <div class="label">LOSSES</div>
-      <div class="number" id="losses">0</div>
-    </div>
+
+  <!-- FUT CHAMPIONS LOGO -->
+
+  <div
+    class="logo-container"
+    id="resetButton"
+  >
+
+    <img
+      class="champs-logo"
+      src="https://raw.githubusercontent.com/inca3/fut-wl-counter/main/public/assets/img/champions-only.png"
+      alt="FUT Champions"
+      draggable="false"
+    >
 
   </div>
 
-  <script>
-    const STATE_KEY = "fut-wl-counter-state";
 
-    let wins = 0;
-    let losses = 0;
+  <!-- LOSSES -->
 
-    const winsElement = document.getElementById("wins");
-    const lossesElement = document.getElementById("losses");
+  <div
+    class="side losses"
+    id="lossesButton"
+  >
+    <div class="label">LOSSES</div>
+    <div
+      class="number"
+      id="losses"
+    >0</div>
+  </div>
 
-    const winsButton = document.getElementById("winsButton");
-    const lossesButton = document.getElementById("lossesButton");
-    const resetButton = document.getElementById("resetButton");
+</div>
 
-    /*
-      --------------------------------------------------
-      CONTROL MODE
-      ?control=1
-      --------------------------------------------------
-    */
 
-    const params = new URLSearchParams(window.location.search);
-    const isControl = params.get("control") === "1";
+<script>
 
-    if (isControl) {
-      document.body.classList.add("control");
-    }
+/* ==================================================
+   EINSTELLUNGEN
+================================================== */
 
-    /*
-      --------------------------------------------------
-      BROADCAST CHANNEL
-      --------------------------------------------------
-    */
+const STORAGE_KEY = "fut-wl-counter-final";
 
-    let channel = null;
+const CONTROL_MODE =
+  new URLSearchParams(window.location.search).get("control") === "1";
 
-    if ("BroadcastChannel" in window) {
-      channel = new BroadcastChannel("fut-wl-counter");
-    }
 
-    /*
-      --------------------------------------------------
-      RENDER
-      --------------------------------------------------
-    */
+/* ==================================================
+   CONTROL-KLASSE
+================================================== */
 
-    function render() {
-      winsElement.textContent = wins;
-      lossesElement.textContent = losses;
-    }
+if (CONTROL_MODE) {
+  document.body.classList.add("control");
+}
 
-    /*
-      --------------------------------------------------
-      SAVE STATE
-      --------------------------------------------------
-    */
 
-    function saveState() {
-      const state = {
-        wins: wins,
-        losses: losses,
-        timestamp: Date.now()
-      };
+/* ==================================================
+   ELEMENTE
+================================================== */
 
-      try {
-        localStorage.setItem(STATE_KEY, JSON.stringify(state));
-      } catch (error) {
-        console.log("localStorage error:", error);
-      }
+const winsElement =
+  document.getElementById("wins");
 
-      if (channel) {
-        channel.postMessage({
-          type: "state",
-          state: state
-        });
-      }
-    }
+const lossesElement =
+  document.getElementById("losses");
 
-    /*
-      --------------------------------------------------
-      LOAD STATE
-      --------------------------------------------------
-    */
+const winsButton =
+  document.getElementById("winsButton");
 
-    function loadState() {
-      try {
-        const saved = localStorage.getItem(STATE_KEY);
+const lossesButton =
+  document.getElementById("lossesButton");
 
-        if (saved) {
-          const state = JSON.parse(saved);
+const resetButton =
+  document.getElementById("resetButton");
 
-          if (
-            typeof state.wins === "number" &&
-            typeof state.losses === "number"
-          ) {
-            wins = state.wins;
-            losses = state.losses;
-            render();
-          }
-        }
-      } catch (error) {
-        console.log("load error:", error);
-      }
-    }
 
-    /*
-      --------------------------------------------------
-      APPLY STATE
-      --------------------------------------------------
-    */
+/* ==================================================
+   WERTE
+================================================== */
 
-    function applyState(state) {
-      if (!state) return;
+let wins = 0;
+let losses = 0;
 
-      if (typeof state.wins === "number") {
-        wins = Math.max(0, state.wins);
-      }
 
-      if (typeof state.losses === "number") {
-        losses = Math.max(0, state.losses);
-      }
+/* ==================================================
+   RENDER
+================================================== */
 
-      render();
-    }
+function render() {
 
-    /*
-      --------------------------------------------------
-      CHANNEL MESSAGES
-      --------------------------------------------------
-    */
+  winsElement.textContent = wins;
+  lossesElement.textContent = losses;
 
-    if (channel) {
-      channel.onmessage = function(event) {
+}
 
-        if (!event.data) return;
 
-        if (event.data.type === "state") {
-          applyState(event.data.state);
-        }
+/* ==================================================
+   STATE SPEICHERN
+================================================== */
 
-        if (event.data.type === "requestState") {
-          channel.postMessage({
-            type: "state",
-            state: {
-              wins: wins,
-              losses: losses,
-              timestamp: Date.now()
-            }
-          });
-        }
-      };
-    }
+function saveState() {
 
-    /*
-      --------------------------------------------------
-      LOCAL STORAGE SYNC
-      --------------------------------------------------
-    */
+  const state = {
 
-    window.addEventListener("storage", function(event) {
+    wins: wins,
+    losses: losses,
 
-      if (event.key !== STATE_KEY) return;
-      if (!event.newValue) return;
+    time: Date.now()
 
-      try {
-        const state = JSON.parse(event.newValue);
-        applyState(state);
-      } catch (error) {
-        console.log("storage sync error:", error);
-      }
-    });
+  };
 
-    /*
-      --------------------------------------------------
-      REQUEST CURRENT STATE
-      --------------------------------------------------
-    */
 
-    function requestState() {
+  try {
 
-      if (channel) {
-        channel.postMessage({
-          type: "requestState"
-        });
-      }
+    localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify(state)
+    );
 
-      loadState();
-    }
+  } catch (error) {
 
-    /*
-      --------------------------------------------------
-      CHANGE COUNTER
-      --------------------------------------------------
-    */
+    console.log(
+      "LocalStorage Fehler:",
+      error
+    );
 
-    function changeWins(amount) {
+  }
 
-      if (!isControl) return;
+}
 
-      wins += amount;
 
-      if (wins < 0) {
-        wins = 0;
-      }
+/* ==================================================
+   STATE LADEN
+================================================== */
+
+function loadState() {
+
+  try {
+
+    const saved =
+      localStorage.getItem(STORAGE_KEY);
+
+
+    if (!saved) {
 
       render();
-      saveState();
+
+      return;
+
     }
 
-    function changeLosses(amount) {
 
-      if (!isControl) return;
+    const state =
+      JSON.parse(saved);
 
-      losses += amount;
 
-      if (losses < 0) {
-        losses = 0;
-      }
+    if (
+      typeof state.wins === "number" &&
+      typeof state.losses === "number"
+    ) {
 
-      render();
-      saveState();
+      wins =
+        Math.max(
+          0,
+          state.wins
+        );
+
+      losses =
+        Math.max(
+          0,
+          state.losses
+        );
+
     }
 
-    /*
-      --------------------------------------------------
-      RESET
-      --------------------------------------------------
-    */
 
-    function resetCounter() {
-
-      if (!isControl) return;
-
-      wins = 0;
-      losses = 0;
-
-      render();
-      saveState();
-    }
-
-    /*
-      --------------------------------------------------
-      MOUSE CONTROLS
-      --------------------------------------------------
-    */
-
-    winsButton.addEventListener("click", function(event) {
-      event.preventDefault();
-      changeWins(1);
-    });
-
-    winsButton.addEventListener("contextmenu", function(event) {
-      event.preventDefault();
-      changeWins(-1);
-    });
-
-    lossesButton.addEventListener("click", function(event) {
-      event.preventDefault();
-      changeLosses(1);
-    });
-
-    lossesButton.addEventListener("contextmenu", function(event) {
-      event.preventDefault();
-      changeLosses(-1);
-    });
-
-    resetButton.addEventListener("click", function(event) {
-      event.preventDefault();
-      resetCounter();
-    });
-
-    resetButton.addEventListener("contextmenu", function(event) {
-      event.preventDefault();
-    });
-
-    /*
-      --------------------------------------------------
-      DISABLE RIGHT CLICK
-      --------------------------------------------------
-    */
-
-    document.addEventListener("contextmenu", function(event) {
-      event.preventDefault();
-    });
-
-    /*
-      --------------------------------------------------
-      START
-      --------------------------------------------------
-    */
-
-    loadState();
     render();
 
-    setTimeout(function() {
-      requestState();
-    }, 300);
+  } catch (error) {
 
-  </script>
+    console.log(
+      "Load Fehler:",
+      error
+    );
+
+  }
+
+}
+
+
+/* ==================================================
+   STATE ÄNDERN
+================================================== */
+
+function setWins(value) {
+
+  wins =
+    Math.max(
+      0,
+      Math.min(
+        20,
+        value
+      )
+    );
+
+  render();
+
+  saveState();
+
+}
+
+
+function setLosses(value) {
+
+  losses =
+    Math.max(
+      0,
+      Math.min(
+        20,
+        value
+      )
+    );
+
+  render();
+
+  saveState();
+
+}
+
+
+/* ==================================================
+   WINS
+================================================== */
+
+winsButton.addEventListener(
+  "click",
+  function(event) {
+
+    event.preventDefault();
+
+    if (!CONTROL_MODE)
+      return;
+
+    setWins(wins + 1);
+
+  }
+);
+
+
+winsButton.addEventListener(
+  "contextmenu",
+  function(event) {
+
+    event.preventDefault();
+
+    if (!CONTROL_MODE)
+      return;
+
+    setWins(wins - 1);
+
+  }
+);
+
+
+/* ==================================================
+   LOSSES
+================================================== */
+
+lossesButton.addEventListener(
+  "click",
+  function(event) {
+
+    event.preventDefault();
+
+    if (!CONTROL_MODE)
+      return;
+
+    setLosses(losses + 1);
+
+  }
+);
+
+
+lossesButton.addEventListener(
+  "contextmenu",
+  function(event) {
+
+    event.preventDefault();
+
+    if (!CONTROL_MODE)
+      return;
+
+    setLosses(losses - 1);
+
+  }
+);
+
+
+/* ==================================================
+   RESET DURCH LOGO
+================================================== */
+
+resetButton.addEventListener(
+  "click",
+  function(event) {
+
+    event.preventDefault();
+
+    if (!CONTROL_MODE)
+      return;
+
+    setWins(0);
+    setLosses(0);
+
+  }
+);
+
+
+/* ==================================================
+   RECHTSKLICK VERHINDERN
+================================================== */
+
+document.addEventListener(
+  "contextmenu",
+  function(event) {
+
+    event.preventDefault();
+
+  }
+);
+
+
+/* ==================================================
+   STORAGE EVENT
+   ANDERE OBS-SEITE ERHÄLT ÄNDERUNG
+================================================== */
+
+window.addEventListener(
+  "storage",
+  function(event) {
+
+    if (
+      event.key !== STORAGE_KEY
+    ) {
+
+      return;
+
+    }
+
+
+    loadState();
+
+  }
+);
+
+
+/* ==================================================
+   POLLING
+   ZUSÄTZLICHE OBS-SICHERHEIT
+================================================== */
+
+let lastStorageValue = null;
+
+
+function checkStorage() {
+
+  try {
+
+    const current =
+      localStorage.getItem(
+        STORAGE_KEY
+      );
+
+
+    if (
+      current &&
+      current !== lastStorageValue
+    ) {
+
+      lastStorageValue =
+        current;
+
+
+      const state =
+        JSON.parse(current);
+
+
+      if (
+        typeof state.wins === "number" &&
+        typeof state.losses === "number"
+      ) {
+
+        wins =
+          Math.max(
+            0,
+            state.wins
+          );
+
+        losses =
+          Math.max(
+            0,
+            state.losses
+          );
+
+        render();
+
+      }
+
+    }
+
+  } catch (error) {
+
+    console.log(
+      "Sync Fehler:",
+      error
+    );
+
+  }
+
+}
+
+
+/* ==================================================
+   START
+================================================== */
+
+loadState();
+
+
+try {
+
+  lastStorageValue =
+    localStorage.getItem(
+      STORAGE_KEY
+    );
+
+} catch (error) {}
+
+
+/* ==================================================
+   ALLE 100ms NACH ÄNDERUNGEN SCHAUEN
+================================================== */
+
+setInterval(
+  checkStorage,
+  100
+);
+
+</script>
 
 </body>
 </html>
